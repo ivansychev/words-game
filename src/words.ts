@@ -1,5 +1,8 @@
 export const WORDS = [
-    "apple",
-    "function",
-    "timeout"
+    "fox",
+    "dog",
+    "cat",
+    "fox",
+    "dog",
+    "cat"
 ]

@@ -1,48 +1,49 @@
 import { WORDS } from "./words";
-import { createLetterElement, shuffle, toggleElementClass } from "./utils";
+import { shuffle } from "./utils";
+import { generateResponsiveLetters } from "./gameHelpers";
 
-const startGame = () => {
+const startGame = (words: string[], numberOfTasks: number, numberOfWords: number) => {
+    const currExerciseDOMElement = document.getElementById('current_exercise')
+    const currQuestionDOMElement = document.getElementById('current_question')
+    const totalExerciseDOMElement = document.getElementById('total_exercises')
+    const totalQuestionDOMElement = document.getElementById('total_questions')
     const lettersDOMElement = document.getElementById('letters')
     const answerDOMElement = document.getElementById('answer')
-    const words = shuffle(Array.from(WORDS))
+    const remainingWords = shuffle(Array.from(WORDS))
 
-    guessNextWord(lettersDOMElement, answerDOMElement)
-}
+    let currentTask: string[] = []
+    let currentTaskNumber = 0;
+    let currentQuestionNumber = 0;
 
-const guessNextWord = (lettersDOMElement: HTMLElement, answerDOMElement: HTMLElement) => {
-    const wordToGuess = WORDS.shift()
-    const currentLetters = shuffle(wordToGuess.split(''))
-    const answeredChars: HTMLElement[] = []
-    let currentAnswer = ''
+    totalExerciseDOMElement.innerText = String(numberOfTasks)
+    totalQuestionDOMElement.innerText = String(numberOfWords)
 
-    currentLetters.forEach((char) => {
-        const pLetter = createLetterElement(char, 'primary')
+    const genTask = () => {
+        currentTask = remainingWords.splice(0,numberOfWords)
+        currExerciseDOMElement.innerText = String(++currentTaskNumber)
+        genWord()
+    }
 
-        const onClick = () => {
-            const suggestion = currentAnswer + char
-            if(suggestion === wordToGuess.substring(0, suggestion.length)){
-                currentAnswer = suggestion
-
-                pLetter.removeEventListener('click', onClick)
-                pLetter.remove()
-
-                const pAnswer = createLetterElement(char, 'success')
-                answeredChars.push(pAnswer)
-                answerDOMElement.append(pAnswer)
-
-                if(suggestion === wordToGuess){
-                    answeredChars.forEach((el) => el.remove())
-                    guessNextWord(lettersDOMElement, answerDOMElement)
-                }
-            } else {
-                toggleElementClass(pLetter, "btn-primary", "btn-danger")
-            }
+    const genWord = () => {
+        if(currentTask.length === 0){
+            currentQuestionNumber = 0
+            gameLoop()
+        } else {
+            currQuestionDOMElement.innerText = String(++currentQuestionNumber);
+            generateResponsiveLetters(currentTask, answerDOMElement, lettersDOMElement, genWord)
         }
+    }
 
-        pLetter.addEventListener('click', onClick)
+    const gameLoop = () => {
+        if(remainingWords.length === 0 || currentTaskNumber > numberOfTasks){
+            alert("Done")
+        } else {
+            genTask()
+        }
+    }
 
-        lettersDOMElement.append(pLetter)
-    })
+    gameLoop()
 }
 
-startGame()
+
+startGame(WORDS, 3, 2)
