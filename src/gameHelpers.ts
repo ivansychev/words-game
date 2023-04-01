@@ -5,6 +5,11 @@ type TextAndElements = {
     text: string
 }
 
+type LettersEventListeners = {
+    onClickEventListener: (e: MouseEvent) => void
+    onKeyUpEventListener: (e: KeyboardEvent) => void
+}
+
 export const generateResponsiveLetters = (
     currentTask: string[],
     answerDOMElement: HTMLElement,
@@ -15,23 +20,42 @@ export const generateResponsiveLetters = (
         elements: [],
         text: currentTask.shift()
     }
+
     const currentAnswer: TextAndElements = {
         elements: [],
         text: ''
     }
+
+    const eventListeners: LettersEventListeners = {
+        onClickEventListener: void 0,
+        onKeyUpEventListener: void 0
+    }
+
+    eventListeners.onClickEventListener = createOnClickEventListenerCallback(
+        currentLetters, currentAnswer, lettersDOMElement, answerDOMElement, genWord,
+        removeAllListenersCallBack(lettersDOMElement, eventListeners)
+    );
+
+    eventListeners.onKeyUpEventListener = createOnKeyUpEventListenerCallback(
+        currentLetters, currentAnswer, answerDOMElement, genWord,
+        removeAllListenersCallBack(lettersDOMElement, eventListeners)
+    );
 
     const shuffledLetters = shuffle(currentLetters.text.split(''))
     shuffledLetters.forEach((char) => {
         createSuggestionLetter(char, currentLetters, lettersDOMElement)
     })
 
-    lettersDOMElement.addEventListener('click', addOnClickEventListener(
-        currentLetters, currentAnswer, lettersDOMElement, answerDOMElement, genWord
-    ))
+    lettersDOMElement.addEventListener('click', eventListeners.onClickEventListener)
+    document.addEventListener('keyup', eventListeners.onKeyUpEventListener)
+}
 
-    document.addEventListener('keyup', (e) => {
-        console.log(e.key.toLowerCase())
-    })
+export const removeAllListenersCallBack = (
+    lettersDOMElement: HTMLElement,
+    eventListeners: LettersEventListeners
+) => () => {
+    lettersDOMElement.removeEventListener('click', eventListeners.onClickEventListener)
+    document.removeEventListener('keyup', eventListeners.onKeyUpEventListener)
 }
 
 export const createSuggestionLetter = (char: string, currentLetters: TextAndElements, lettersDOMElement: HTMLElement) => {
@@ -46,12 +70,13 @@ export const createAnswerLetter = (char: string, currentAnswer: TextAndElements,
     answerDOMElement.append(pAnswer)
 }
 
-export const addOnClickEventListener = (
+export const createOnClickEventListenerCallback = (
     currentLetters: TextAndElements,
     currentAnswer: TextAndElements,
     lettersDOMElement: HTMLElement,
     answerDOMElement: HTMLElement,
-    genWord: () => void
+    genWord: () => void,
+    removeAllListenersCallBack: () => void
 ) => {
     const callback = (e: MouseEvent) => {
         const target = e.target as HTMLElement
@@ -66,11 +91,44 @@ export const addOnClickEventListener = (
 
                 if(suggestion === currentLetters.text){
                     currentAnswer.elements.forEach((el) => el.remove())
-                    lettersDOMElement.removeEventListener('click', callback)
+                    removeAllListenersCallBack()
                     genWord()
                 }
             } else {
                 toggleElementClass(target, "btn-primary", "btn-danger")
+            }
+        }
+    }
+
+    return callback
+}
+
+export const createOnKeyUpEventListenerCallback = (
+    currentLetters: TextAndElements,
+    currentAnswer: TextAndElements,
+    answerDOMElement: HTMLElement,
+    removeAllListenersCallBack: () => void,
+    genWord: () => void
+) => {
+    const callback = (e: KeyboardEvent) => {
+        const char = e.key.toLowerCase()
+        const el = currentLetters.elements.find((el) => el.innerText === char)
+
+        if(el){
+            const suggestion = currentAnswer.text + char
+
+            if(suggestion === currentLetters.text.substring(0, suggestion.length)){
+                currentAnswer.text = suggestion
+                createAnswerLetter(char, currentAnswer, answerDOMElement)
+                el.remove()
+
+                if(suggestion === currentLetters.text){
+                    currentAnswer.elements.forEach((el) => el.remove())
+                    removeAllListenersCallBack()
+                    genWord()
+                }
+            } else {
+                toggleElementClass(el, "btn-primary", "btn-danger")
             }
         }
     }
