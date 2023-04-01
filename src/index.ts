@@ -9,7 +9,7 @@ const startGame = (words: string[], numberOfTasks: number, numberOfWords: number
     const totalQuestionDOMElement = document.getElementById('total_questions')
     const lettersDOMElement = document.getElementById('letters')
     const answerDOMElement = document.getElementById('answer')
-    const remainingWords = shuffle(Array.from(WORDS))
+    const remainingWords = shuffle(Array.from(WORDS, (word) => word.toLowerCase()))
 
     let currentTask: string[] = []
     let currentTaskNumber = 0;

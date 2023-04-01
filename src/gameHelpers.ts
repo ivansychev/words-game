@@ -1,42 +1,79 @@
 import { createLetterElement, shuffle, toggleElementClass } from "./utils";
 
+type TextAndElements = {
+    elements: HTMLElement[],
+    text: string
+}
+
 export const generateResponsiveLetters = (
     currentTask: string[],
     answerDOMElement: HTMLElement,
     lettersDOMElement: HTMLElement,
     genWord: () => void
 ) => {
-    const wordToGuess = currentTask.shift()
-    const currentLetters = shuffle(wordToGuess.split(''))
-    const answeredChars: HTMLElement[] = []
-    let currentAnswer = ''
+    const currentLetters: TextAndElements = {
+        elements: [],
+        text: currentTask.shift()
+    }
+    const currentAnswer: TextAndElements = {
+        elements: [],
+        text: ''
+    }
 
-    currentLetters.forEach((char) => {
-        const pLetter = createLetterElement(char, 'primary')
+    const shuffledLetters = shuffle(currentLetters.text.split(''))
+    shuffledLetters.forEach((char) => {
+        createSuggestionLetter(char, currentLetters, lettersDOMElement)
+    })
 
-        const onClick = () => {
-            const suggestion = currentAnswer + char
-            if(suggestion === wordToGuess.substring(0, suggestion.length)){
-                currentAnswer = suggestion
+    lettersDOMElement.addEventListener('click', addOnClickEventListener(
+        currentLetters, currentAnswer, lettersDOMElement, answerDOMElement, genWord
+    ))
 
-                pLetter.removeEventListener('click', onClick)
-                pLetter.remove()
+    document.addEventListener('keyup', (e) => {
+        console.log(e.key.toLowerCase())
+    })
+}
 
-                const pAnswer = createLetterElement(char, 'success')
-                answeredChars.push(pAnswer)
-                answerDOMElement.append(pAnswer)
+export const createSuggestionLetter = (char: string, currentLetters: TextAndElements, lettersDOMElement: HTMLElement) => {
+    const pLetter = createLetterElement(char, 'primary')
+    currentLetters.elements.push(pLetter)
+    lettersDOMElement.append(pLetter)
+}
 
-                if(suggestion === wordToGuess){
-                    answeredChars.forEach((el) => el.remove())
+export const createAnswerLetter = (char: string, currentAnswer: TextAndElements, answerDOMElement: HTMLElement) => {
+    const pAnswer = createLetterElement(char, 'success')
+    currentAnswer.elements.push(pAnswer)
+    answerDOMElement.append(pAnswer)
+}
+
+export const addOnClickEventListener = (
+    currentLetters: TextAndElements,
+    currentAnswer: TextAndElements,
+    lettersDOMElement: HTMLElement,
+    answerDOMElement: HTMLElement,
+    genWord: () => void
+) => {
+    const callback = (e: MouseEvent) => {
+        const target = e.target as HTMLElement
+
+        if(target.tagName === 'BUTTON'){
+            const suggestion = currentAnswer.text + target.innerText
+
+            if(suggestion === currentLetters.text.substring(0, suggestion.length)){
+                currentAnswer.text = suggestion
+                createAnswerLetter(target.innerText, currentAnswer, answerDOMElement)
+                target.remove()
+
+                if(suggestion === currentLetters.text){
+                    currentAnswer.elements.forEach((el) => el.remove())
+                    lettersDOMElement.removeEventListener('click', callback)
                     genWord()
                 }
             } else {
-                toggleElementClass(pLetter, "btn-primary", "btn-danger")
+                toggleElementClass(target, "btn-primary", "btn-danger")
             }
         }
+    }
 
-        pLetter.addEventListener('click', onClick)
-
-        lettersDOMElement.append(pLetter)
-    })
+    return callback
 }
