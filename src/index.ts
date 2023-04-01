@@ -1,44 +1,35 @@
 import { WORDS } from "./words";
-import { shuffle } from "./utils";
-import { generateResponsiveLetters } from "./gameHelpers";
+import { generateResponsiveLetters } from "./utils/game-helpers";
+import { getInitGameState } from "./utils/state";
+
 
 const startGame = (words: string[], numberOfTasks: number, numberOfWords: number) => {
-    const currExerciseDOMElement = document.getElementById('current_exercise')
-    const currQuestionDOMElement = document.getElementById('current_question')
-    const totalExerciseDOMElement = document.getElementById('total_exercises')
-    const totalQuestionDOMElement = document.getElementById('total_questions')
-    const lettersDOMElement = document.getElementById('letters')
-    const answerDOMElement = document.getElementById('answer')
-    const remainingWords = shuffle(Array.from(WORDS, (word) => word.toLowerCase()))
+    const game = getInitGameState(words, numberOfTasks, numberOfWords);
 
-    let currentTask: string[] = []
-    let currentTaskNumber = 0;
-    let currentQuestionNumber = 0;
+    game.DOM.totalExerciseDOMElement.innerText = String(numberOfTasks)
+    game.DOM.totalQuestionDOMElement.innerText = String(numberOfWords)
 
-    totalExerciseDOMElement.innerText = String(numberOfTasks)
-    totalQuestionDOMElement.innerText = String(numberOfWords)
+    const gameLoop = () => {
+        if(game.state.remainingWordsInGame.length === 0 || game.state.currentTaskNumber > game.state.totalNumberOfTasks){
+            alert("Done")
+        } else {
+            genTask()
+        }
+    }
 
     const genTask = () => {
-        currentTask = remainingWords.splice(0,numberOfWords)
-        currExerciseDOMElement.innerText = String(++currentTaskNumber)
+        game.state.remainingWordsInTask = game.state.remainingWordsInGame.splice(0,numberOfWords)
+        game.DOM.currExerciseDOMElement.innerText = String(++game.state.currentTaskNumber)
         genWord()
     }
 
     const genWord = () => {
-        if(currentTask.length === 0){
-            currentQuestionNumber = 0
+        if(game.state.remainingWordsInTask.length === 0){
+            game.state.currentQuestionNumber = 0
             gameLoop()
         } else {
-            currQuestionDOMElement.innerText = String(++currentQuestionNumber);
-            generateResponsiveLetters(currentTask, answerDOMElement, lettersDOMElement, genWord)
-        }
-    }
-
-    const gameLoop = () => {
-        if(remainingWords.length === 0 || currentTaskNumber > numberOfTasks){
-            alert("Done")
-        } else {
-            genTask()
+            game.DOM.currQuestionDOMElement.innerText = String(++game.state.currentQuestionNumber);
+            generateResponsiveLetters(game, genWord)
         }
     }
 
