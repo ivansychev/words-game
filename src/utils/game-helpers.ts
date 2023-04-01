@@ -91,7 +91,6 @@ export const compareWords = (
 ) => {
     const { currentGuessedLetterElements, answerDOMElement } = game.DOM
     const { currentWord, currentAnswer } = game.state.currentGuess
-
     const suggestion = currentAnswer + char
 
     if(suggestion === currentWord.substring(0, suggestion.length)){

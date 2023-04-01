@@ -9,6 +9,7 @@ export const createLetterElement = (char: string, type: string) => {
     el.innerText = char
     el.setAttribute("data-toggle","button")
     el.className = `btn btn-${type} btn-lg m-2`
+    el.style.width = "50px"
     return el
 }
 

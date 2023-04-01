@@ -22,7 +22,7 @@ type State = {
     currentQuestionNumber: number
     totalNumberOfTasks: number
     totalNumberOfWords: number
-    remainingWordsInTask: []
+    remainingWordsInTask: string[]
     remainingWordsInGame: string[]
     solvedWords: string[]
     currentGuess: GuessState
