@@ -4,7 +4,7 @@ type DisplayStats = {
     noErrorsWords: number
     totalErrors: number
     mostErrorsWord: {
-        word: string
+        words: string[]
         errors: number
     }
 }
@@ -20,10 +20,11 @@ export const displayStats = (game: GameState) => {
         acc.totalErrors += curr.errors
 
         if(curr.errors > acc.mostErrorsWord.errors){
-            acc.mostErrorsWord = {
-                word: curr.word,
-                errors: curr.errors
-            }
+            acc.mostErrorsWord.words = []
+            acc.mostErrorsWord.words.push(curr.word)
+            acc.mostErrorsWord.errors = curr.errors
+        } else if(curr.errors === acc.mostErrorsWord.errors && curr.errors !== 0){
+            acc.mostErrorsWord.words.push(curr.word)
         }
 
         return acc
@@ -31,7 +32,7 @@ export const displayStats = (game: GameState) => {
         noErrorsWords: 0,
         totalErrors: 0,
         mostErrorsWord: {
-            word: '',
+            words: [],
             errors: 0
         }
     })
@@ -39,6 +40,13 @@ export const displayStats = (game: GameState) => {
     statsContainerDOMElement.innerHTML = `
         <p class="mb-5">Число собранных слов без ошибок: ${stats.noErrorsWords}</p>
         <p class="mb-5">Общее число ошибок: ${stats.totalErrors}</p>
-        <p class="mb-5">Слово с самым большим числом ошибок - ${stats.mostErrorsWord.word}. (Ошибок: ${stats.mostErrorsWord.errors})</p>
+        <p class="mb-5">
+            ${stats.mostErrorsWord.words.length === 0 
+                ? "Все слова собраны правильно"
+                : `${stats.mostErrorsWord.words.length === 1 ? "Слово" : "Слова"}
+                   с самым большим числом ошибок - ${stats.mostErrorsWord.words.join(', ')}. 
+                   (Ошибок: ${stats.mostErrorsWord.errors})`
+            }
+        </p>
     `
 }
