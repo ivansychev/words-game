@@ -3,10 +3,14 @@ import { WORDS } from "../words";
 
 export type GameState = {
     DOM: DOM,
-    state: State
+    state: State,
+    stats: Stats
 }
 
 type DOM = {
+    infoContainerDOMElement: HTMLElement
+    gameContainerDOMElement: HTMLElement
+    statsContainerDOMElement: HTMLElement
     currExerciseDOMElement: HTMLElement
     currQuestionDOMElement: HTMLElement
     totalExerciseDOMElement: HTMLElement
@@ -33,8 +37,20 @@ type GuessState = {
     currentAnswer: string
 }
 
+export type WordStat = {
+    task: number
+    question: number
+    word: string
+    errors: number
+}
+
+type Stats = WordStat[]
+
 export const getInitGameState = (words: string[], numberOfTasks: number, numberOfWords: number): GameState => ({
     DOM: {
+        infoContainerDOMElement: document.getElementById('info-container'),
+        gameContainerDOMElement: document.getElementById('game-container'),
+        statsContainerDOMElement: document.getElementById('stats-container'),
         currExerciseDOMElement: document.getElementById('current_exercise'),
         currQuestionDOMElement: document.getElementById('current_question'),
         totalExerciseDOMElement: document.getElementById('total_exercises'),
@@ -56,5 +72,6 @@ export const getInitGameState = (words: string[], numberOfTasks: number, numberO
             currentWord: '',
             currentAnswer: ''
         }
-    }
+    },
+    stats: []
 })

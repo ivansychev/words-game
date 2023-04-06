@@ -18,10 +18,10 @@ export const changeElementClass = (el: HTMLElement, prev: string, next: string) 
     el.classList.add(next)
 }
 
-export const toggleElementClass = (el: HTMLElement, prev: string, next: string) => {
+export const toggleElementClass = (el: HTMLElement, prev: string, next: string, delay = 500) => {
     if(el.classList.contains(next)) return
     changeElementClass(el, prev, next)
     setTimeout(() => {
         changeElementClass(el, next, prev)
-    }, 500)
+    }, delay)
 }

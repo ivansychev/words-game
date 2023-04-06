@@ -1,17 +1,17 @@
 import { WORDS } from "./words";
 import { generateResponsiveLetters } from "./utils/game-helpers";
 import { getInitGameState } from "./utils/state";
+import {displayStats} from "./ui/stats-ui";
 
 
 const startGame = (words: string[], numberOfTasks: number, numberOfWords: number) => {
     const game = getInitGameState(words, numberOfTasks, numberOfWords);
-
     game.DOM.totalExerciseDOMElement.innerText = String(numberOfTasks)
     game.DOM.totalQuestionDOMElement.innerText = String(numberOfWords)
 
     const gameLoop = () => {
         if(game.state.remainingWordsInGame.length === 0 || game.state.currentTaskNumber > game.state.totalNumberOfTasks){
-            alert("Done")
+            displayStats(game)
         } else {
             genTask()
         }
