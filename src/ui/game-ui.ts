@@ -48,3 +48,15 @@ export const createPendingLetters = (DOM: DOM, shuffledLetters: string[]) => {
         createUILetter(char, 'primary', DOM.currentPendingLettersElements, DOM.lettersDOMElement)
     })
 }
+
+export const showModal = (modal: HTMLElement) => {
+    modal.classList.remove("fade")
+    modal.classList.add("show")
+    modal.style.display = "block"
+}
+
+export const hideModal = (modal: HTMLElement) => {
+    modal.classList.remove("show")
+    modal.classList.add("fade")
+    modal.style.display = "none"
+}

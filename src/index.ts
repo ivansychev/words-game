@@ -1,61 +1,37 @@
 import { WORDS } from "./words";
-import { startCurrentQuestion } from "./utils/game-helpers";
-import { getInitGameState, initState, initStats } from "./utils/state";
-import { displayStats } from "./ui/stats-ui";
-import { parseStats } from "./utils/stats-helpers";
-import { setCurrentExercise, setCurrentQuestion, setTotalExercises, setTotalQuestions } from "./ui/info-ui";
-import { getCurrentQuestionNumber, getCurrentTaskNumber } from "./utils/utils";
+import { hideModal, showModal } from "./ui/game-ui";
+import { startGame } from "./game";
 
+const initGame = () => {
+    const numberOfQuestionsInTask = 6
+    const numberOfTasks = Math.floor(WORDS.length / numberOfQuestionsInTask)
+    const words = WORDS.splice(0, numberOfQuestionsInTask * numberOfTasks)
 
-const startGame = (words: string[], numberOfTasks: number, numberOfWords: number) => {
-    const storageInit = sessionStorage.length !== 0
+    if(sessionStorage.length !== 0){
+        const modal = document.getElementById("myModal")
+        const cancelButton = document.getElementById("cancelModalButton")
+        const continueButton = document.getElementById("continueModalButton")
 
-    const game = storageInit
-        ? getInitGameState(
-            JSON.parse(sessionStorage.getItem('game-state')),
-            JSON.parse(sessionStorage.getItem('stats-state'))
-        )
-        : getInitGameState(
-            initState(words, numberOfTasks, numberOfWords),
-            initStats()
-        )
+        showModal(modal)
 
-    const { state } = game
-
-    setTotalExercises(game, numberOfTasks)
-    setTotalQuestions(game, numberOfWords)
-
-    const gameLoop = () => {
-        if(state.remainingWordsInGame.length === 0 || state.currentTaskNumber > state.totalNumberOfTasks){
+        const handleCancel = () => {
+            hideModal(modal)
+            startGame(words, numberOfTasks, numberOfQuestionsInTask, false)
             sessionStorage.clear()
-            const stats = parseStats(game)
-            displayStats(game, stats)
-        } else {
-            genTask()
+            cancelButton.removeEventListener('click', handleCancel)
         }
-    }
 
-    const genTask = () => {
-        state.remainingWordsInTask = game.state.remainingWordsInGame.splice(0,numberOfWords)
-        genWord()
-    }
-
-    const genWord = () => {
-        if(state.remainingWordsInTask.length === 0){
-            gameLoop()
-        } else {
-            setCurrentExercise(game, getCurrentTaskNumber(state))
-            setCurrentQuestion(game, getCurrentQuestionNumber(state))
-            startCurrentQuestion(game, genWord)
+        const handleContinue = () => {
+            hideModal(modal)
+            startGame(words, numberOfTasks, numberOfQuestionsInTask, true)
+            continueButton.removeEventListener('click', handleContinue)
         }
-    }
 
-    if(storageInit){
-        genWord()
+        cancelButton.addEventListener('click', handleCancel)
+        continueButton.addEventListener('click', handleContinue)
     } else {
-        gameLoop()
+        startGame(words, numberOfTasks, numberOfQuestionsInTask, false)
     }
 }
 
-
-startGame(WORDS, 3, 2)
+initGame()
