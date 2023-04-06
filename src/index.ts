@@ -1,5 +1,5 @@
 import { WORDS } from "./words";
-import { generateResponsiveLetters } from "./utils/game-helpers";
+import { startCurrentQuestion } from "./utils/game-helpers";
 import { getInitGameState } from "./utils/state";
 import { displayStats } from "./ui/stats-ui";
 import { parseStats } from "./utils/stats-helpers";
@@ -35,7 +35,7 @@ const startGame = (words: string[], numberOfTasks: number, numberOfWords: number
             gameLoop()
         } else {
             setCurrentQuestion(game, ++state.currentQuestionNumber)
-            generateResponsiveLetters(game, genWord)
+            startCurrentQuestion(game, genWord)
         }
     }
 

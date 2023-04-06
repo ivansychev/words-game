@@ -1,6 +1,7 @@
 import { shuffle } from "./utils";
 import { WORDS } from "../words";
 
+
 export type DisplayStats = {
     noErrorsWords: number
     totalErrors: number
@@ -16,7 +17,7 @@ export type GameState = {
     stats: Stats
 }
 
-type DOM = {
+export type DOM = {
     infoContainerDOMElement: HTMLElement
     gameContainerDOMElement: HTMLElement
     statsContainerDOMElement: HTMLElement
@@ -26,6 +27,8 @@ type DOM = {
     totalQuestionDOMElement: HTMLElement
     lettersDOMElement: HTMLElement
     answerDOMElement: HTMLElement
+    currentPendingLettersElements: HTMLElement[]
+    currentAnsweredLettersElements: HTMLElement[]
 }
 
 type State = {
@@ -37,8 +40,6 @@ type State = {
     remainingWordsInGame: string[]
     solvedWords: string[]
     currentGuess: GuessState
-    currentPendingLetterElements: HTMLElement[]
-    currentGuessedLetterElements: HTMLElement[]
 }
 
 type GuessState = {
@@ -65,7 +66,9 @@ export const getInitGameState = (words: string[], numberOfTasks: number, numberO
         totalExerciseDOMElement: document.getElementById('total_exercises'),
         totalQuestionDOMElement: document.getElementById('total_questions'),
         lettersDOMElement: document.getElementById('letters'),
-        answerDOMElement: document.getElementById('answer')
+        answerDOMElement: document.getElementById('answer'),
+        currentPendingLettersElements: [],
+        currentAnsweredLettersElements: []
     },
     state: {
         currentTaskNumber: 0,
@@ -78,9 +81,7 @@ export const getInitGameState = (words: string[], numberOfTasks: number, numberO
         currentGuess: {
             currentWord: '',
             currentAnswer: ''
-        },
-        currentPendingLetterElements: [],
-        currentGuessedLetterElements: []
+        }
     },
     stats: []
 })

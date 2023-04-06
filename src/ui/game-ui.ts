@@ -1,3 +1,6 @@
+import { DOM, GameState } from "../utils/state";
+
+
 export const createLetterElement = (char: string, type: string) => {
     const el = document.createElement('button')
     el.innerText = char
@@ -24,4 +27,24 @@ export const createUILetter = (char: string, type: string, htmlElements: HTMLEle
     const pLetter = createLetterElement(char, type)
     htmlElements.push(pLetter)
     DOMParent.append(pLetter)
+}
+
+export const removeAnsweredLetters = (DOM: DOM) => {
+    DOM.currentAnsweredLettersElements.forEach((el) => el.remove())
+}
+
+export const removePendingLetters = (DOM: DOM) => {
+    DOM.currentPendingLettersElements.forEach((el) => el.remove())
+}
+
+export const createUnguessedAnswer = (game: GameState) => {
+    game.state.currentGuess.currentWord.split('').forEach((char) => {
+        createUILetter(char, 'danger', game.DOM.currentAnsweredLettersElements, game.DOM.answerDOMElement)
+    })
+}
+
+export const createPendingLetters = (DOM: DOM, shuffledLetters: string[]) => {
+    shuffledLetters.forEach((char) => {
+        createUILetter(char, 'primary', DOM.currentPendingLettersElements, DOM.lettersDOMElement)
+    })
 }

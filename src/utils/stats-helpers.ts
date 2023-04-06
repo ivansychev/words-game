@@ -1,4 +1,5 @@
-import {DisplayStats, GameState} from "./state";
+import { DisplayStats, GameState } from "./state";
+
 
 export const parseStats = (game: GameState) =>
     game.stats.reduce<DisplayStats>((acc, curr) => {

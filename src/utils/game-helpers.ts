@@ -1,21 +1,22 @@
 import { shuffle } from "./utils";
 import { GameState, WordStat } from "./state";
-import { createUILetter, toggleElementClass } from "../ui/game-ui";
+import { createPendingLetters } from "../ui/game-ui";
+import {
+    createOnClickEventListenerCallback,
+    createOnKeyUpEventListenerCallback,
+    removeAllListenersCallBack
+} from "./game-event-handlers";
 
-type LettersEventListeners = {
-    onClickEventListener: (e: MouseEvent) => void
-    onKeyUpEventListener: (e: KeyboardEvent) => void
-}
 
-export const generateResponsiveLetters = (
+export const startCurrentQuestion = (
     game: GameState,
     genWord: () => void
 ) => {
     const { state } = game
     const { lettersDOMElement } = game.DOM
 
-    state.currentPendingLetterElements = []
-    state.currentGuessedLetterElements = []
+    game.DOM.currentPendingLettersElements = []
+    game.DOM.currentAnsweredLettersElements = []
     state.currentGuess.currentWord = game.state.remainingWordsInTask.shift()
     state.currentGuess.currentAnswer = ''
 
@@ -40,111 +41,13 @@ export const generateResponsiveLetters = (
     );
 
     const shuffledLetters = shuffle(game.state.currentGuess.currentWord.split(''))
-    shuffledLetters.forEach((char) => {
-        createUILetter(char, 'primary', state.currentPendingLetterElements, lettersDOMElement)
-    })
+    createPendingLetters(game.DOM, shuffledLetters)
 
     lettersDOMElement.addEventListener('click', eventListeners.onClickEventListener)
     document.addEventListener('keyup', eventListeners.onKeyUpEventListener)
 }
 
-export const removeAllListenersCallBack = (
-    lettersDOMElement: HTMLElement,
-    eventListeners: LettersEventListeners
-) => () => {
-    lettersDOMElement.removeEventListener('click', eventListeners.onClickEventListener)
-    document.removeEventListener('keyup', eventListeners.onKeyUpEventListener)
-}
-
-export const createOnClickEventListenerCallback = (
-    game: GameState,
-    currWordStat: WordStat,
-    genWord: () => void,
-    removeAllListenersCallBack: () => void
-) => (e: MouseEvent) => {
-    const target = e.target as HTMLElement
-
-    if(target.tagName === 'BUTTON')
-        compareWords(game, target, target.innerText, currWordStat, removeAllListenersCallBack, genWord)
-}
-
-export const createOnKeyUpEventListenerCallback = (
-    game: GameState,
-    currWordStat: WordStat,
-    genWord: () => void,
-    removeAllListenersCallBack: () => void
-) => (e: KeyboardEvent) => {
-    const { lettersDOMElement } = game.DOM
-    const { currentPendingLetterElements } = game.state
-
-    if(/^[a-zA-Z]$/.test(e.key)){
-        const char = e.key.toLowerCase()
-        const el = currentPendingLetterElements.find((el) => el.innerText === char)
-
-        if(el){
-            compareWords(game, el, char, currWordStat, removeAllListenersCallBack, genWord)
-        } else {
-            toggleElementClass(lettersDOMElement, 'bg-body', 'bg-danger', 200)
-            currWordStat.errors++
-            if(currWordStat.errors >= 3){
-                handleUnguessedWord(game, currWordStat, removeAllListenersCallBack, genWord)
-            }
-        }
-    }
-}
-
-export const compareWords = (
-    game: GameState,
-    el: HTMLElement,
-    char: string,
-    currWordStat: WordStat,
-    removeAllListenersCallBack: () => void,
-    genWord: () => void
-) => {
-    const { answerDOMElement } = game.DOM
-    const { currentGuessedLetterElements, currentGuess: { currentWord, currentAnswer } } = game.state
-    const suggestion = currentAnswer + char
-
-    if(suggestion === currentWord.substring(0, suggestion.length)){
-        game.state.currentGuess.currentAnswer = suggestion
-        createUILetter(char, 'success', currentGuessedLetterElements, answerDOMElement)
-        el.remove()
-
-        if(suggestion === currentWord){
-            removeAllListenersCallBack()
-            setTimeout(() => {
-                currentGuessedLetterElements.forEach((el) => el.remove())
-                game.stats.push(currWordStat)
-                genWord()
-            }, 750)
-        }
-    } else {
-        currWordStat.errors++
-        toggleElementClass(el, "btn-primary", "btn-danger")
-        if(currWordStat.errors >= 3){
-            handleUnguessedWord(game, currWordStat, removeAllListenersCallBack, genWord)
-        }
-    }
-}
-
-export const handleUnguessedWord = (
-    game: GameState,
-    currWordStat: WordStat,
-    removeAllListenersCallBack: () => void,
-    genWord: () => void
-) => {
-    const { answerDOMElement } = game.DOM
-    const { currentGuessedLetterElements, currentPendingLetterElements, currentGuess: { currentWord } } = game.state
-
-    removeAllListenersCallBack()
-    currentGuessedLetterElements.forEach((el) => el.remove())
-    currentPendingLetterElements.forEach((el) => el.remove())
-    currentWord.split('').forEach((char) => {
-        createUILetter(char, 'danger', currentGuessedLetterElements, answerDOMElement)
-    })
-    setTimeout(() => {
-        currentGuessedLetterElements.forEach((el) => el.remove())
-        game.stats.push(currWordStat)
-        genWord()
-    }, 1250)
+type LettersEventListeners = {
+    onClickEventListener: (e: MouseEvent) => void
+    onKeyUpEventListener: (e: KeyboardEvent) => void
 }
