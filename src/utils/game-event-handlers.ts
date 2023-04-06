@@ -115,8 +115,8 @@ export const handleContext = (
     game.state.resolvedWords.push(game.state.currentGuess.currentWord)
     game.stats.push(currWordStat)
 
-    // sessionStorage.setItem('game-state', JSON.stringify(game.state) )
-    // sessionStorage.setItem('stats-state', JSON.stringify(game.stats))
+    sessionStorage.setItem('game-state', JSON.stringify(game.state))
+    sessionStorage.setItem('stats-state', JSON.stringify(game.stats))
 }
 
 export const startNextWord = (

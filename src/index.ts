@@ -37,7 +37,6 @@ const startGame = (words: string[], numberOfTasks: number, numberOfWords: number
 
     const genTask = () => {
         state.remainingWordsInTask = game.state.remainingWordsInGame.splice(0,numberOfWords)
-        setCurrentExercise(game, getCurrentTaskNumber(state))
         genWord()
     }
 
@@ -45,14 +44,13 @@ const startGame = (words: string[], numberOfTasks: number, numberOfWords: number
         if(state.remainingWordsInTask.length === 0){
             gameLoop()
         } else {
+            setCurrentExercise(game, getCurrentTaskNumber(state))
             setCurrentQuestion(game, getCurrentQuestionNumber(state))
             startCurrentQuestion(game, genWord)
-            console.log(game)
         }
     }
 
     if(storageInit){
-        console.log('storage!', game)
         genWord()
     } else {
         gameLoop()
