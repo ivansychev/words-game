@@ -1,5 +1,4 @@
 import { shuffle } from "./utils";
-import { WORDS } from "../words";
 
 
 export type DisplayStats = {
@@ -31,14 +30,12 @@ export type DOM = {
     currentAnsweredLettersElements: HTMLElement[]
 }
 
-type State = {
-    currentTaskNumber: number
-    currentQuestionNumber: number
+export type State = {
     totalNumberOfTasks: number
     totalNumberOfWords: number
     remainingWordsInTask: string[]
     remainingWordsInGame: string[]
-    solvedWords: string[]
+    resolvedWords: string[]
     currentGuess: GuessState
 }
 
@@ -56,7 +53,21 @@ export type WordStat = {
 
 type Stats = WordStat[]
 
-export const getInitGameState = (words: string[], numberOfTasks: number, numberOfWords: number): GameState => ({
+export const initState = (words: string[], numberOfTasks: number, numberOfWords: number): State => ({
+    totalNumberOfTasks: numberOfTasks,
+    totalNumberOfWords: numberOfWords,
+    remainingWordsInTask: [],
+    remainingWordsInGame: shuffle(Array.from(words, (word) => word.toLowerCase())),
+    resolvedWords: [],
+    currentGuess: {
+        currentWord: '',
+        currentAnswer: ''
+    }
+})
+
+export const initStats = (): Stats => ([])
+
+export const getInitGameState = (state: State, stats: Stats): GameState => ({
     DOM: {
         infoContainerDOMElement: document.getElementById('info-container'),
         gameContainerDOMElement: document.getElementById('game-container'),
@@ -70,18 +81,6 @@ export const getInitGameState = (words: string[], numberOfTasks: number, numberO
         currentPendingLettersElements: [],
         currentAnsweredLettersElements: []
     },
-    state: {
-        currentTaskNumber: 0,
-        currentQuestionNumber: 0,
-        totalNumberOfTasks: numberOfTasks,
-        totalNumberOfWords: numberOfWords,
-        remainingWordsInTask: [],
-        remainingWordsInGame: shuffle(Array.from(WORDS, (word) => word.toLowerCase())),
-        solvedWords: [],
-        currentGuess: {
-            currentWord: '',
-            currentAnswer: ''
-        }
-    },
-    stats: []
+    state: state,
+    stats: stats
 })

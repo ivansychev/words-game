@@ -1,13 +1,25 @@
 import { WORDS } from "./words";
 import { startCurrentQuestion } from "./utils/game-helpers";
-import { getInitGameState } from "./utils/state";
+import { getInitGameState, initState, initStats } from "./utils/state";
 import { displayStats } from "./ui/stats-ui";
 import { parseStats } from "./utils/stats-helpers";
 import { setCurrentExercise, setCurrentQuestion, setTotalExercises, setTotalQuestions } from "./ui/info-ui";
+import { getCurrentQuestionNumber, getCurrentTaskNumber } from "./utils/utils";
 
 
 const startGame = (words: string[], numberOfTasks: number, numberOfWords: number) => {
-    const game = getInitGameState(words, numberOfTasks, numberOfWords)
+    const storageInit = sessionStorage.length !== 0
+
+    const game = storageInit
+        ? getInitGameState(
+            JSON.parse(sessionStorage.getItem('game-state')),
+            JSON.parse(sessionStorage.getItem('stats-state'))
+        )
+        : getInitGameState(
+            initState(words, numberOfTasks, numberOfWords),
+            initStats()
+        )
+
     const { state } = game
 
     setTotalExercises(game, numberOfTasks)
@@ -15,7 +27,7 @@ const startGame = (words: string[], numberOfTasks: number, numberOfWords: number
 
     const gameLoop = () => {
         if(state.remainingWordsInGame.length === 0 || state.currentTaskNumber > state.totalNumberOfTasks){
-            console.log(game)
+            sessionStorage.clear()
             const stats = parseStats(game)
             displayStats(game, stats)
         } else {
@@ -25,21 +37,26 @@ const startGame = (words: string[], numberOfTasks: number, numberOfWords: number
 
     const genTask = () => {
         state.remainingWordsInTask = game.state.remainingWordsInGame.splice(0,numberOfWords)
-        setCurrentExercise(game, ++game.state.currentTaskNumber)
+        setCurrentExercise(game, getCurrentTaskNumber(state))
         genWord()
     }
 
     const genWord = () => {
         if(state.remainingWordsInTask.length === 0){
-            state.currentQuestionNumber = 0
             gameLoop()
         } else {
-            setCurrentQuestion(game, ++state.currentQuestionNumber)
+            setCurrentQuestion(game, getCurrentQuestionNumber(state))
             startCurrentQuestion(game, genWord)
+            console.log(game)
         }
     }
 
-    gameLoop()
+    if(storageInit){
+        console.log('storage!', game)
+        genWord()
+    } else {
+        gameLoop()
+    }
 }
 
 

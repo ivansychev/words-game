@@ -1,4 +1,4 @@
-import { shuffle } from "./utils";
+import { getCurrentQuestionNumber, getCurrentTaskNumber, shuffle } from "./utils";
 import { GameState, WordStat } from "./state";
 import { createPendingLetters } from "../ui/game-ui";
 import {
@@ -17,7 +17,7 @@ export const startCurrentQuestion = (
 
     game.DOM.currentPendingLettersElements = []
     game.DOM.currentAnsweredLettersElements = []
-    state.currentGuess.currentWord = game.state.remainingWordsInTask.shift()
+    state.currentGuess.currentWord = game.state.remainingWordsInTask[0]
     state.currentGuess.currentAnswer = ''
 
     const eventListeners: LettersEventListeners = {
@@ -26,8 +26,8 @@ export const startCurrentQuestion = (
     }
 
     const currWordStat: WordStat = {
-        task: state.currentTaskNumber,
-        question: state.currentQuestionNumber,
+        task: getCurrentTaskNumber(state),
+        question: getCurrentQuestionNumber(state),
         word: state.currentGuess.currentWord,
         errors: 0
     }
@@ -47,7 +47,7 @@ export const startCurrentQuestion = (
     document.addEventListener('keyup', eventListeners.onKeyUpEventListener)
 }
 
-type LettersEventListeners = {
+export type LettersEventListeners = {
     onClickEventListener: (e: MouseEvent) => void
     onKeyUpEventListener: (e: KeyboardEvent) => void
 }
