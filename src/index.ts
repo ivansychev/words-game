@@ -3,7 +3,7 @@ import { generateResponsiveLetters } from "./utils/game-helpers";
 import { getInitGameState } from "./utils/state";
 import { displayStats } from "./ui/stats-ui";
 import { parseStats } from "./utils/stats-helpers";
-import {setCurrentExercise, setCurrentQuestion, setTotalExercises, setTotalQuestions} from "./ui/info-ui";
+import { setCurrentExercise, setCurrentQuestion, setTotalExercises, setTotalQuestions } from "./ui/info-ui";
 
 
 const startGame = (words: string[], numberOfTasks: number, numberOfWords: number) => {
