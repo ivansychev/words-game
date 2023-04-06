@@ -61,13 +61,14 @@ export const handleUserAction = (
     removeAllListenersCallBack: () => void,
     genWord: () => void
 ) => {
-    const { answerDOMElement, currentAnsweredLettersElements } = game.DOM;
+    const { answerDOMElement, currentAnsweredLettersElements, currentPendingLettersElements } = game.DOM;
     const { currentWord, currentAnswer } = game.state.currentGuess;
     const suggestion = currentAnswer + char;
 
     if (suggestion === currentWord.substring(0, suggestion.length)) {
         game.state.currentGuess.currentAnswer = suggestion;
         createUILetter(char, "success", currentAnsweredLettersElements, answerDOMElement)
+        currentPendingLettersElements.splice(currentPendingLettersElements.indexOf(el), 1)
         el.remove();
 
         if (suggestion === currentWord) {

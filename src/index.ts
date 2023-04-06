@@ -2,8 +2,7 @@ import { WORDS } from "./words";
 import { hideModal, showModal } from "./ui/game-ui";
 import { startGame } from "./game";
 
-const initGame = () => {
-    const numberOfQuestionsInTask = 6
+const initGame = (numberOfQuestionsInTask: number) => {
     const numberOfTasks = Math.floor(WORDS.length / numberOfQuestionsInTask)
     const words = WORDS.splice(0, numberOfQuestionsInTask * numberOfTasks)
 
@@ -34,4 +33,4 @@ const initGame = () => {
     }
 }
 
-initGame()
+initGame(6)
