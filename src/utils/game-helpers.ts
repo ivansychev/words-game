@@ -1,5 +1,6 @@
-import { createLetterElement, shuffle, toggleElementClass } from "./utils";
+import { shuffle } from "./utils";
 import { GameState, WordStat } from "./state";
+import { createUILetter, toggleElementClass } from "../ui/game-ui";
 
 type LettersEventListeners = {
     onClickEventListener: (e: MouseEvent) => void
@@ -10,22 +11,23 @@ export const generateResponsiveLetters = (
     game: GameState,
     genWord: () => void
 ) => {
-    game.DOM.currentPendingLetterElements = []
-    game.DOM.currentGuessedLetterElements = []
-    game.state.currentGuess.currentWord = game.state.remainingWordsInTask.shift()
-    game.state.currentGuess.currentAnswer = ''
+    const { state } = game
+    const { lettersDOMElement } = game.DOM
 
-    const { lettersDOMElement, currentPendingLetterElements } = game.DOM
-    const { currentTaskNumber, currentQuestionNumber, currentGuess: { currentWord } } = game.state
+    state.currentPendingLetterElements = []
+    state.currentGuessedLetterElements = []
+    state.currentGuess.currentWord = game.state.remainingWordsInTask.shift()
+    state.currentGuess.currentAnswer = ''
+
     const eventListeners: LettersEventListeners = {
         onClickEventListener: void 0,
         onKeyUpEventListener: void 0
     }
 
     const currWordStat: WordStat = {
-        task: currentTaskNumber,
-        question: currentQuestionNumber,
-        word: currentWord,
+        task: state.currentTaskNumber,
+        question: state.currentQuestionNumber,
+        word: state.currentGuess.currentWord,
         errors: 0
     }
 
@@ -39,7 +41,7 @@ export const generateResponsiveLetters = (
 
     const shuffledLetters = shuffle(game.state.currentGuess.currentWord.split(''))
     shuffledLetters.forEach((char) => {
-        createUILetter(char, 'primary', currentPendingLetterElements, lettersDOMElement)
+        createUILetter(char, 'primary', state.currentPendingLetterElements, lettersDOMElement)
     })
 
     lettersDOMElement.addEventListener('click', eventListeners.onClickEventListener)
@@ -52,12 +54,6 @@ export const removeAllListenersCallBack = (
 ) => () => {
     lettersDOMElement.removeEventListener('click', eventListeners.onClickEventListener)
     document.removeEventListener('keyup', eventListeners.onKeyUpEventListener)
-}
-
-export const createUILetter = (char: string, type: string, htmlElements: HTMLElement[], DOMParent: HTMLElement) => {
-    const pLetter = createLetterElement(char, type)
-    htmlElements.push(pLetter)
-    DOMParent.append(pLetter)
 }
 
 export const createOnClickEventListenerCallback = (
@@ -78,7 +74,8 @@ export const createOnKeyUpEventListenerCallback = (
     genWord: () => void,
     removeAllListenersCallBack: () => void
 ) => (e: KeyboardEvent) => {
-    const { currentPendingLetterElements, lettersDOMElement } = game.DOM
+    const { lettersDOMElement } = game.DOM
+    const { currentPendingLetterElements } = game.state
 
     if(/^[a-zA-Z]$/.test(e.key)){
         const char = e.key.toLowerCase()
@@ -104,8 +101,8 @@ export const compareWords = (
     removeAllListenersCallBack: () => void,
     genWord: () => void
 ) => {
-    const { currentGuessedLetterElements, answerDOMElement } = game.DOM
-    const { currentWord, currentAnswer } = game.state.currentGuess
+    const { answerDOMElement } = game.DOM
+    const { currentGuessedLetterElements, currentGuess: { currentWord, currentAnswer } } = game.state
     const suggestion = currentAnswer + char
 
     if(suggestion === currentWord.substring(0, suggestion.length)){
@@ -136,8 +133,8 @@ export const handleUnguessedWord = (
     removeAllListenersCallBack: () => void,
     genWord: () => void
 ) => {
-    const { currentGuessedLetterElements, currentPendingLetterElements, answerDOMElement } = game.DOM
-    const { currentWord } = game.state.currentGuess
+    const { answerDOMElement } = game.DOM
+    const { currentGuessedLetterElements, currentPendingLetterElements, currentGuess: { currentWord } } = game.state
 
     removeAllListenersCallBack()
     currentGuessedLetterElements.forEach((el) => el.remove())
